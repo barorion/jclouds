@@ -19,13 +19,11 @@
 package org.jclouds.ultradns.ws.features;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.testng.Assert.assertTrue;
 
 import org.jclouds.rest.ResourceNotFoundException;
 import org.jclouds.ultradns.ws.domain.Account;
 import org.jclouds.ultradns.ws.domain.LBPool;
-import org.jclouds.ultradns.ws.domain.LBPool.Type;
-import org.jclouds.ultradns.ws.domain.PoolRecord;
+import org.jclouds.ultradns.ws.domain.ResourceRecordMetadata;
 import org.jclouds.ultradns.ws.domain.Zone;
 import org.jclouds.ultradns.ws.internal.BaseUltraDNSWSApiLiveTest;
 import org.testng.annotations.BeforeClass;
@@ -34,8 +32,8 @@ import org.testng.annotations.Test;
 /**
  * @author Adrian Cole
  */
-@Test(groups = "live", singleThreaded = true, testName = "LBPoolApiLiveTest")
-public class LBPoolApiLiveTest extends BaseUltraDNSWSApiLiveTest {
+@Test(groups = "live", singleThreaded = true, testName = "RRPoolApiLiveTest")
+public class RRPoolApiLiveTest extends BaseUltraDNSWSApiLiveTest {
 
    private Account account;
 
@@ -54,16 +52,8 @@ public class LBPoolApiLiveTest extends BaseUltraDNSWSApiLiveTest {
       checkNotNull(pool.getResponseMethod(), "ResponseMethod cannot be null for a LBPool %s", pool);
    }
 
-   private void checkPoolRecord(PoolRecord record) {
-      checkNotNull(record.getPoolId(), "PoolId cannot be null for a PoolRecord %s", record);
-      checkNotNull(record.getId(), "Id cannot be null for a PoolRecord %s", record);
-      checkNotNull(record.getDescription(), "Description cannot be null for a PoolRecord %s", record);
-      checkNotNull(record.getPointsTo(), "PointsTo cannot be null for a PoolRecord %s", record);
-      checkNotNull(record.getType(), "Type cannot be null for a PoolRecord %s", record);
-   }
-
    @Test
-   public void testListLBPools() {
+   public void testListRRPools() {
       for (Zone zone : context.getApi().getZoneApi().listByAccount(account.getId())) {
          for (LBPool pool : api(zone.getName()).list()) {
             checkLBPool(pool);
@@ -72,32 +62,22 @@ public class LBPoolApiLiveTest extends BaseUltraDNSWSApiLiveTest {
    }
 
    @Test
-   public void testListLBPoolsByType() {
+   public void testListRRPoolRecords() {
       for (Zone zone : context.getApi().getZoneApi().listByAccount(account.getId())) {
          for (LBPool pool : api(zone.getName()).list()) {
-            assertTrue(api(zone.getName()).listByType(pool.getType()).contains(pool));
-            break;
-         }
-      }
-   }
-
-   @Test
-   public void testListLBPoolRecords() {
-      for (Zone zone : context.getApi().getZoneApi().listByAccount(account.getId())) {
-         for (LBPool pool : api(zone.getName()).listByType(Type.RR)) {
-            for (PoolRecord record : api(zone.getName()).listRecords(pool.getId())) {
-               checkPoolRecord(record);
+            for (ResourceRecordMetadata record : api(zone.getName()).listRecords(pool.getId())) {
+               ResourceRecordApiLiveTest.checkResourceRecordMetadata(record);
             }
          }
       }
    }
 
    @Test(expectedExceptions = ResourceNotFoundException.class, expectedExceptionsMessageRegExp = "Zone does not exist in the system.")
-   public void testListLBPoolsWhenZoneIdNotFound() {
+   public void testListRRPoolsWhenZoneIdNotFound() {
       api("AAAAAAAAAAAAAAAA").list();
    }
 
-   private LBPoolApi api(String zoneName) {
-      return context.getApi().getLBPoolApiForZone(zoneName);
+   private RRPoolApi api(String zoneName) {
+      return context.getApi().getRRPoolApiForZone(zoneName);
    }
 }

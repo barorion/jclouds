@@ -30,59 +30,49 @@ import org.jclouds.rest.annotations.RequestFilters;
 import org.jclouds.rest.annotations.VirtualHost;
 import org.jclouds.rest.annotations.XMLResponseParser;
 import org.jclouds.ultradns.ws.domain.LBPool;
-import org.jclouds.ultradns.ws.domain.LBPool.Type;
-import org.jclouds.ultradns.ws.domain.PoolRecord;
+import org.jclouds.ultradns.ws.domain.ResourceRecord;
 import org.jclouds.ultradns.ws.filters.SOAPWrapWithPasswordAuth;
 import org.jclouds.ultradns.ws.xml.LBPoolListHandler;
-import org.jclouds.ultradns.ws.xml.PoolRecordListHandler;
+import org.jclouds.ultradns.ws.xml.ResourceRecordListHandler;
 
 import com.google.common.collect.FluentIterable;
 import com.google.common.util.concurrent.ListenableFuture;
 
 /**
- * @see LBPoolApi
+ * @see RRPoolApi
  * @see <a href="https://ultra-api.ultradns.com:8443/UltraDNS_WS/v01?wsdl" />
  * @see <a href="https://www.ultradns.net/api/NUS_API_XML_SOAP.pdf" />
  * @author Adrian Cole
  */
 @RequestFilters(SOAPWrapWithPasswordAuth.class)
 @VirtualHost
-public interface LBPoolAsyncApi {
+public interface RRPoolAsyncApi {
 
    /**
-    * @see LBPoolApi#list()
+    * @see RRPoolApi#list()
     */
    @Named("getLoadBalancingPoolsByZone")
    @POST
    @XMLResponseParser(LBPoolListHandler.class)
-   @Payload("<v01:getLoadBalancingPoolsByZone><zoneName>{zoneName}</zoneName><lbPoolType>all</lbPoolType></v01:getLoadBalancingPoolsByZone>")
+   @Payload("<v01:getLoadBalancingPoolsByZone><zoneName>{zoneName}</zoneName><lbPoolType>RR</lbPoolType></v01:getLoadBalancingPoolsByZone>")
    ListenableFuture<FluentIterable<LBPool>> list() throws ResourceNotFoundException;
 
    /**
-    * @see LBPoolApi#listRecords(String)
+    * @see RRPoolApi#listRecords(String)
     */
-   @Named("getPoolRecords")
+   @Named("getRRPoolRecords")
    @POST
-   @XMLResponseParser(PoolRecordListHandler.class)
-   @Payload("<v01:getPoolRecords><poolId>{poolId}</poolId></v01:getPoolRecords>")
-   ListenableFuture<FluentIterable<PoolRecord>> listRecords(@PayloadParam("poolId") String poolId) throws ResourceNotFoundException;
-
-   /**
-    * @see LBPoolApi#listByType(String)
-    */
-   @Named("getLoadBalancingPoolsByZone")
-   @POST
-   @XMLResponseParser(LBPoolListHandler.class)
-   @Payload("<v01:getLoadBalancingPoolsByZone><zoneName>{zoneName}</zoneName><lbPoolType>{type}</lbPoolType></v01:getLoadBalancingPoolsByZone>")
-   ListenableFuture<FluentIterable<LBPool>> listByType(@PayloadParam("type") Type type)
+   @XMLResponseParser(ResourceRecordListHandler.class)
+   @Payload("<v01:getRRPoolRecords><lbPoolId>{poolId}</lbPoolId></v01:getRRPoolRecords>")
+   ListenableFuture<FluentIterable<ResourceRecord>> listRecords(@PayloadParam("poolId") String poolId)
          throws ResourceNotFoundException;
 
    /**
-    * @see LBPoolApi#delete(String)
+    * @see RRPoolApi#delete(String)
     */
-   @Named("deleteLBPool")
+   @Named("deleteRRPool")
    @POST
-   @Payload("<v01:deleteLBPool><transactionID /><lbPoolID>{lbPoolID}</lbPoolID><DeleteAll>Yes</DeleteAll></v01:deleteLBPool>")
+   @Payload("<v01:deleteRRPool><transactionID /><lbPoolID>{lbPoolID}</lbPoolID><DeleteAll>Yes</DeleteAll></v01:deleteRRPool>")
    @Fallback(VoidOnNotFoundOr404.class)
    ListenableFuture<Void> delete(@PayloadParam("lbPoolID") String id);
 }

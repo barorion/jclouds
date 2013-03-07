@@ -74,7 +74,7 @@ public class ResourceRecordApiLiveTest extends BaseUltraDNSWSApiLiveTest {
       super.tearDownContext();
    }
 
-   private void checkResourceRecord(ResourceRecord rr) {
+   static void checkResourceRecord(ResourceRecord rr) {
       checkNotNull(rr.getName(), "DName cannot be null for a ResourceRecord %s", rr);
       checkNotNull(rr.getType(), "Type cannot be null for a ResourceRecord %s", rr);
       assertTrue(rr.getType().intValue() > 0, "Type must be positive for a ResourceRecord " + rr);
@@ -83,7 +83,7 @@ public class ResourceRecordApiLiveTest extends BaseUltraDNSWSApiLiveTest {
       checkNotNull(rr.getRData(), "InfoValues cannot be null for a ResourceRecord %s", rr);
    }
 
-   private void checkResourceRecordMetadata(ResourceRecordMetadata rr) {
+   static void checkResourceRecordMetadata(ResourceRecordMetadata rr) {
       checkNotNull(rr.getZoneId(), "ZoneId cannot be null for a ResourceRecordMetadata %s", rr);
       checkNotNull(rr.getGuid(), "Guid cannot be null for a ResourceRecordMetadata %s", rr);
       checkNotNull(rr.getZoneName(), "ZoneName cannot be null for a ResourceRecordMetadata %s", rr);
